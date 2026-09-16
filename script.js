@@ -286,26 +286,76 @@ printButton.addEventListener("click", function () {
     qrBox.innerHTML = "";
 
 
-    if (
-        PROMPTPAY_ID !==
-        "ใส่เบอร์พร้อมเพย์ของคุณตรงนี้"
-    ) {
+  function formatPromptPayNumber(phone) {
+    phone = phone.replace(/\D/g, "");
 
-        new QRCode(qrBox, {
+    if (phone.startsWith("0")) {
+        phone = "66" + phone.substring(1);
+    }
 
-            text:
-                "https://promptpay.io/" +
-                PROMPTPAY_ID +
-                "/" +
-                total,
+    return "0066" + phone.substring(2);
+}
 
-            width: 220,
 
-            height: 220
+function crc16(str) {
 
-        });
+    let crc = 0xFFFF;
 
-    } else {
+    for (let i = 0; i < str.length; i++) {
+
+        crc ^= str.charCodeAt(i) << 8;
+
+        for (let j = 0; j < 8; j++) {
+
+            if (crc & 0x8000) {
+                crc = (crc << 1) ^ 0x1021;
+            } else {
+                crc = crc << 1;
+            }
+
+            crc &= 0xFFFF;
+        }
+    }
+
+    return crc
+        .toString(16)
+        .toUpperCase()
+        .padStart(4, "0");
+}
+
+
+function makePromptPayQR(phone, amount) {
+
+    const mobile =
+        formatPromptPayNumber(phone);
+
+
+    const merchantAccountInformation =
+        "0016A000000677010111" +
+        "0113" +
+        mobile;
+
+
+    const payload =
+        "000201" +
+        "010212" +
+        "29" +
+        merchantAccountInformation.length
+            .toString()
+            .padStart(2, "0") +
+        merchantAccountInformation +
+        "5303764" +
+        "54" +
+        amount.toFixed(2).length
+            .toString()
+            .padStart(2, "0") +
+        amount.toFixed(2) +
+        "5802TH" +
+        "6304";
+
+
+    return payload + crc16(payload);
+} else {
 
         qrBox.innerHTML = `
             <p>
