@@ -1,129 +1,253 @@
+// ============================================
+// PRINT EASY - ระบบสั่งปริ้น
+// ============================================
+
+// ------------------------------
+// ตัวแปรหลัก
+// ------------------------------
+
+let selectedFile = null;
+let totalPages = 0;
+
+
+// ------------------------------
+// หา Element จาก HTML
+// ------------------------------
+
 const fileInput = document.getElementById("fileInput");
 const fileName = document.getElementById("fileName");
 const pageCount = document.getElementById("pageCount");
-const printSetting = document.getElementById("printSetting");
 
-const paperSize = document.getElementById("paperSize");
-const a5TypeBox = document.getElementById("a5TypeBox");
-const a5Type = document.getElementById("a5Type");
-const color = document.getElementById("color");
-const copies = document.getElementById("copies");
-const price = document.getElementById("price");
-const printButton = document.getElementById("printButton");
-const status = document.getElementById("status");
+const printSetting =
+    document.getElementById("printSetting");
 
-let totalPages = 0;
-let selectedFile = null;
+const paperSize =
+    document.getElementById("paperSize");
+
+const a5TypeBox =
+    document.getElementById("a5TypeBox");
+
+const a5Type =
+    document.getElementById("a5Type");
+
+const color =
+    document.getElementById("color");
+
+const copies =
+    document.getElementById("copies");
+
+const price =
+    document.getElementById("price");
+
+const printButton =
+    document.getElementById("printButton");
+
+const status =
+    document.getElementById("status");
+
+const paymentBox =
+    document.getElementById("paymentBox");
+
+const summary =
+    document.getElementById("summary");
+
+const qrcode =
+    document.getElementById("qrcode");
+
+const paidButton =
+    document.getElementById("paidButton");
+
+const successBox =
+    document.getElementById("successBox");
 
 
-/* =====================================
-   PROMPTPAY
-   ===================================== */
+// ============================================
+// PDF.js
+// ============================================
 
-const PROMPTPAY_ID = "0999066313";
+if (typeof pdfjsLib !== "undefined") {
 
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-/* =====================================
-   PDF.JS
-   ===================================== */
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
 
 
-/* =====================================
-   เลือกไฟล์
-   ===================================== */
+// ============================================
+// เมื่อเลือกไฟล์ PDF
+// ============================================
 
-fileInput.addEventListener("change", async function () {
+fileInput.addEventListener(
+    "change",
+    async function () {
 
-    selectedFile = fileInput.files[0];
+        const file = fileInput.files[0];
 
-    if (!selectedFile) return;
+        if (!file) {
+            return;
+        }
 
-    fileName.textContent =
-        "📄 " + selectedFile.name;
 
-    pageCount.textContent =
-        "⏳ กำลังนับจำนวนหน้า...";
+        // ตรวจสอบว่าเป็น PDF
 
-    try {
+        if (
+            file.type !== "application/pdf" &&
+            !file.name.toLowerCase().endsWith(".pdf")
+        ) {
 
-        const data =
-            await selectedFile.arrayBuffer();
+            alert("กรุณาเลือกไฟล์ PDF เท่านั้น");
 
-        const pdf =
-            await pdfjsLib
-                .getDocument({ data })
-                .promise;
+            fileInput.value = "";
 
-        totalPages = pdf.numPages;
+            return;
+        }
+
+
+        selectedFile = file;
+
+
+        // แสดงชื่อไฟล์
+
+        fileName.textContent =
+            "📄 " + file.name;
+
+
+        // แสดงสถานะกำลังอ่านไฟล์
 
         pageCount.textContent =
-            "📑 จำนวน " + totalPages + " หน้า";
+            "⏳ กำลังนับจำนวนหน้า...";
 
-        printSetting.style.display =
-            "block";
+
+        try {
+
+            const arrayBuffer =
+                await file.arrayBuffer();
+
+
+            const pdf =
+                await pdfjsLib
+                    .getDocument({
+                        data: arrayBuffer
+                    })
+                    .promise;
+
+
+            totalPages =
+                pdf.numPages;
+
+
+            // แสดงจำนวนหน้า
+
+            pageCount.textContent =
+                "📑 จำนวน " +
+                totalPages +
+                " หน้า";
+
+
+            // แสดงเมนูตั้งค่าปริ้น
+
+            printSetting.style.display =
+                "block";
+
+
+            // คำนวณราคา
+
+            calculatePrice();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            pageCount.textContent =
+                "❌ อ่านไฟล์ PDF ไม่สำเร็จ";
+
+            printSetting.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+// ============================================
+// เปลี่ยนขนาดกระดาษ
+// ============================================
+
+paperSize.addEventListener(
+    "change",
+    function () {
+
+        if (paperSize.value === "A5") {
+
+            a5TypeBox.style.display =
+                "block";
+
+        } else {
+
+            a5TypeBox.style.display =
+                "none";
+
+        }
+
 
         calculatePrice();
 
-    } catch (error) {
-
-        console.error(error);
-
-        pageCount.textContent =
-            "❌ ไม่สามารถอ่านไฟล์ PDF ได้";
-
     }
-
-});
-
-
-/* =====================================
-   เลือก A4 / A5
-   ===================================== */
-
-paperSize.addEventListener("change", function () {
-
-    if (paperSize.value === "A5") {
-
-        a5TypeBox.style.display =
-            "block";
-
-    } else {
-
-        a5TypeBox.style.display =
-            "none";
-
-    }
-
-    calculatePrice();
-
-});
+);
 
 
-/* =====================================
-   คำนวณราคา
-   ===================================== */
+// ============================================
+// คำนวณราคา
+// ============================================
 
 function calculatePrice() {
 
-    if (totalPages === 0) return;
+    if (totalPages <= 0) {
 
-    const numberOfCopies =
-        Math.max(1, Number(copies.value));
+        price.textContent =
+            "0 บาท";
 
-    let pricePerPage;
+        return;
+
+    }
 
 
+    let numberOfCopies =
+        parseInt(copies.value);
+
+
+    if (
+        isNaN(numberOfCopies) ||
+        numberOfCopies < 1
+    ) {
+
+        numberOfCopies = 1;
+
+        copies.value = 1;
+
+    }
+
+
+    let pricePerPage = 0;
+
+
+    // ------------------------------
     // A4
+    // ------------------------------
+
     if (paperSize.value === "A4") {
 
         if (color.value === "black") {
 
+            // A4 ขาวดำ = 1 บาท
+
             pricePerPage = 1;
 
         } else {
+
+            // A4 สี = 5 บาท
 
             pricePerPage = 5;
 
@@ -132,14 +256,21 @@ function calculatePrice() {
     }
 
 
+    // ------------------------------
     // A5
+    // ------------------------------
+
     else {
 
         if (color.value === "black") {
 
+            // A5 ขาวดำ = 1 บาท
+
             pricePerPage = 1;
 
         } else {
+
+            // A5 สี = 4 บาท
 
             pricePerPage = 4;
 
@@ -148,22 +279,26 @@ function calculatePrice() {
     }
 
 
-    const total =
+    // ------------------------------
+    // รวมราคา
+    // ------------------------------
+
+    const totalPrice =
         totalPages *
-        numberOfCopies *
-        pricePerPage;
+        pricePerPage *
+        numberOfCopies;
 
 
     price.textContent =
-        total.toLocaleString() +
+        totalPrice.toLocaleString("th-TH") +
         " บาท";
 
 }
 
 
-/* =====================================
-   เปลี่ยนสี
-   ===================================== */
+// ============================================
+// เปลี่ยนสี
+// ============================================
 
 color.addEventListener(
     "change",
@@ -171,9 +306,9 @@ color.addEventListener(
 );
 
 
-/* =====================================
-   เปลี่ยนจำนวนชุด
-   ===================================== */
+// ============================================
+// เปลี่ยนจำนวนชุด
+// ============================================
 
 copies.addEventListener(
     "input",
@@ -181,9 +316,9 @@ copies.addEventListener(
 );
 
 
-/* =====================================
-   เปลี่ยนประเภท A5
-   ===================================== */
+// ============================================
+// เปลี่ยนประเภท A5
+// ============================================
 
 a5Type.addEventListener(
     "change",
@@ -191,13 +326,15 @@ a5Type.addEventListener(
 );
 
 
-/* =====================================
-   กดปุ่มปริ้น
-   ===================================== */
+// ============================================
+// กดปุ่ม "ยืนยันคำสั่งปริ้น"
+// ============================================
 
 printButton.addEventListener(
     "click",
     function () {
+
+        // ต้องมีไฟล์ก่อน
 
         if (!selectedFile) {
 
@@ -210,9 +347,25 @@ printButton.addEventListener(
         }
 
 
-        const numberOfCopies =
-            Math.max(1, Number(copies.value));
+        // จำนวนชุด
 
+        let numberOfCopies =
+            parseInt(copies.value);
+
+
+        if (
+            isNaN(numberOfCopies) ||
+            numberOfCopies < 1
+        ) {
+
+            numberOfCopies = 1;
+
+        }
+
+
+        // ------------------------------
+        // หาราคาต่อหน้า
+        // ------------------------------
 
         let pricePerPage;
 
@@ -234,53 +387,52 @@ printButton.addEventListener(
         }
 
 
-        const total =
+        // ------------------------------
+        // ราคาทั้งหมด
+        // ------------------------------
+
+        const totalPrice =
             totalPages *
-            numberOfCopies *
-            pricePerPage;
+            pricePerPage *
+            numberOfCopies;
 
 
-        /* =============================
-           แสดงสรุป
-           ============================= */
+        // ------------------------------
+        // ชื่อสี
+        // ------------------------------
 
-        document.getElementById(
-            "paymentBox"
-        ).style.display = "block";
-
-
-        printSetting.style.display =
-            "none";
+        const colorName =
+            color.value === "black"
+                ? "ขาวดำ"
+                : "สี";
 
 
-        const summary =
-            document.getElementById(
-                "summary"
-            );
+        // ------------------------------
+        // ประเภท A5
+        // ------------------------------
 
-
-        let a5Text = "";
+        let a5Name = "";
 
 
         if (paperSize.value === "A5") {
 
-            a5Text = `
-                <div class="summary-item">
-                    📦 ประเภท A5:
-                    ${a5Type.options[
-                        a5Type.selectedIndex
-                    ].text}
-                </div>
-            `;
+            a5Name =
+                a5Type.options[
+                    a5Type.selectedIndex
+                ].text;
 
         }
 
+
+        // ------------------------------
+        // แสดงสรุป
+        // ------------------------------
 
         summary.innerHTML = `
 
             <div class="summary-item">
                 📄 ไฟล์:
-                ${selectedFile.name}
+                ${escapeHTML(selectedFile.name)}
             </div>
 
             <div class="summary-item">
@@ -289,19 +441,26 @@ printButton.addEventListener(
             </div>
 
             <div class="summary-item">
-                📄 กระดาษ:
+                📄 ขนาดกระดาษ:
                 ${paperSize.value}
             </div>
 
-            ${a5Text}
+            ${
+                paperSize.value === "A5"
+                ?
+                `
+                <div class="summary-item">
+                    📦 ประเภท A5:
+                    ${a5Name}
+                </div>
+                `
+                :
+                ""
+            }
 
             <div class="summary-item">
                 🎨 สี:
-                ${
-                    color.value === "black"
-                    ? "ขาวดำ"
-                    : "สี"
-                }
+                ${colorName}
             </div>
 
             <div class="summary-item">
@@ -310,41 +469,95 @@ printButton.addEventListener(
             </div>
 
             <div class="summary-total">
-                💰 ${total.toLocaleString()} บาท
+                💰 ${totalPrice.toLocaleString("th-TH")}
+                บาท
             </div>
 
         `;
 
 
-        /* =============================
-           สร้าง QR
-           ============================= */
+        // ------------------------------
+        // เปิดหน้าชำระเงิน
+        // ------------------------------
 
-        const qrBox =
-            document.getElementById(
-                "qrcode"
-            );
+        paymentBox.style.display =
+            "block";
 
 
-        qrBox.innerHTML = "";
+        // ซ่อนหน้าตั้งค่า
+
+        printSetting.style.display =
+            "none";
 
 
-        /*
-         * หมายเหตุ:
-         * ส่วนนี้สร้าง QR จากข้อมูล
-         * PromptPay ที่กำหนด
-         */
+        // ล้าง QR เก่า
 
-        const payload =
-            createPromptPayPayload(
-                PROMPTPAY_ID,
-                total
-            );
+        qrcode.innerHTML = "";
 
 
-        new QRCode(qrBox, {
+        // ------------------------------
+        // สร้าง QR
+        // ------------------------------
 
-            text: payload,
+        createPaymentQR(
+            totalPrice
+        );
+
+
+        // เลื่อนไปหน้าชำระเงิน
+
+        paymentBox.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }
+);
+
+
+// ============================================
+// สร้าง QR สำหรับชำระเงิน
+// ============================================
+
+function createPaymentQR(amount) {
+
+    // ตรวจว่ามี QRCode library
+
+    if (
+        typeof QRCode === "undefined"
+    ) {
+
+        qrcode.innerHTML = `
+
+            <p>
+                ❌ ไม่พบระบบ QR Code
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+     * ตอนนี้ใช้ QR สำหรับต้นแบบระบบ
+     *
+     * หากต้องการรับเงินจริง
+     * ต้องใช้ PromptPay payload
+     * ที่สร้างอย่างถูกต้อง
+     */
+
+    const paymentText =
+        "PRINT EASY " +
+        amount +
+        " บาท";
+
+
+    new QRCode(
+        qrcode,
+        {
+
+            text: paymentText,
 
             width: 230,
 
@@ -353,163 +566,51 @@ printButton.addEventListener(
             correctLevel:
                 QRCode.CorrectLevel.M
 
+        }
+    );
+
+}
+
+
+// ============================================
+// ปุ่ม "ชำระเงินแล้ว"
+// ============================================
+
+paidButton.addEventListener(
+    "click",
+    function () {
+
+        paymentBox.style.display =
+            "none";
+
+
+        successBox.style.display =
+            "block";
+
+
+        status.textContent =
+            "✅ รับคำสั่งปริ้นแล้ว";
+
+
+        successBox.scrollIntoView({
+            behavior: "smooth"
         });
 
     }
 );
 
 
-/* =====================================
-   สร้าง PromptPay Payload
-   ===================================== */
+// ============================================
+// ป้องกัน HTML จากชื่อไฟล์
+// ============================================
 
-function createPromptPayPayload(
-    mobile,
-    amount
-) {
+function escapeHTML(text) {
 
-    let phone =
-        mobile.replace(/\D/g, "");
+    const div =
+        document.createElement("div");
 
+    div.textContent = text;
 
-    if (phone.startsWith("0")) {
-
-        phone =
-            "0066" +
-            phone.substring(1);
-
-    }
-
-
-    const merchantInfo =
-        "0016A000000677" +
-        "010111" +
-        "0113" +
-        phone;
-
-
-    const merchantInfoField =
-        "29" +
-        merchantInfo.length
-            .toString()
-            .padStart(2, "0") +
-        merchantInfo;
-
-
-    const amountText =
-        Number(amount)
-            .toFixed(2);
-
-
-    let payload =
-        "000201" +
-        "010212" +
-        merchantInfoField +
-        "5303764" +
-        "54" +
-        amountText.length
-            .toString()
-            .padStart(2, "0") +
-        amountText +
-        "5802TH" +
-        "6304";
-
-
-    const crc =
-        calculateCRC16(payload);
-
-
-    return payload + crc;
-
-}
-
-
-/* =====================================
-   CRC16
-   ===================================== */
-
-function calculateCRC16(
-    data
-) {
-
-    let crc = 0xFFFF;
-
-
-    for (
-        let i = 0;
-        i < data.length;
-        i++
-    ) {
-
-        crc ^=
-            data.charCodeAt(i) << 8;
-
-
-        for (
-            let j = 0;
-            j < 8;
-            j++
-        ) {
-
-            if (crc & 0x8000) {
-
-                crc =
-                    (crc << 1) ^
-                    0x1021;
-
-            } else {
-
-                crc =
-                    crc << 1;
-
-            }
-
-            crc &=
-                0xFFFF;
-
-        }
-
-    }
-
-
-    return crc
-        .toString(16)
-        .toUpperCase()
-        .padStart(4, "0");
-
-}
-
-
-/* =====================================
-   ชำระเงินแล้ว
-   ===================================== */
-
-const paidButton =
-    document.getElementById(
-        "paidButton"
-    );
-
-
-if (paidButton) {
-
-    paidButton.addEventListener(
-        "click",
-        function () {
-
-            document.getElementById(
-                "paymentBox"
-            ).style.display = "none";
-
-
-            document.getElementById(
-                "successBox"
-            ).style.display = "block";
-
-
-            status.textContent =
-                "✅ รับคำสั่งปริ้นแล้ว";
-
-        }
-    );
+    return div.innerHTML;
 
 }
