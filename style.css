@@ -242,6 +242,94 @@ input[type="number"] {
 #status {
 
     text-align: center;
+    #paymentBox {
+
+    margin-top: 30px;
+
+    text-align: center;
+
+}
+
+
+#qrcode {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin: 25px 0;
+
+}
+
+
+#qrcode img {
+
+    padding: 10px;
+
+    background: white;
+
+    border-radius: 15px;
+
+}
+
+
+#summary {
+
+    margin-top: 20px;
+
+    padding: 20px;
+
+    background: #f5f5f5;
+
+    border-radius: 15px;
+
+    text-align: left;
+
+}
+
+
+.summary-item {
+
+    padding: 8px 0;
+
+    border-bottom: 1px solid #ddd;
+
+}
+
+
+.summary-total {
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+}
+
+
+.payment-note {
+
+    color: #666;
+
+}
+
+
+#successBox {
+
+    margin-top: 30px;
+
+    text-align: center;
+
+    padding: 30px;
+
+    border-radius: 20px;
+
+    background: #f5f5f5;
+
+}
 
     margin-top: 15px;
 
