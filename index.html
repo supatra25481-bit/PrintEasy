@@ -176,9 +176,68 @@
     </div>
 
 </div>
+<!-- หน้าชำระเงิน -->
 
+<div
+    id="paymentBox"
+    style="display:none;"
+>
+
+    <h2>💳 ชำระเงิน</h2>
+
+    <p>
+        กรุณาสแกน QR Code
+        เพื่อชำระค่าปริ้น
+    </p>
+
+
+    <!-- สรุปงาน -->
+
+    <div id="summary"></div>
+
+
+    <!-- QR -->
+
+    <div id="qrcode"></div>
+
+
+    <p class="payment-note">
+        หลังจากชำระเงินแล้ว
+        กดปุ่มด้านล่าง
+    </p>
+
+
+    <button
+        id="paidButton"
+        class="print-button"
+    >
+
+        ✅ ชำระเงินแล้ว
+
+    </button>
+
+</div>
+
+
+<!-- สำเร็จ -->
+
+<div
+    id="successBox"
+    style="display:none;"
+>
+
+    <h2>✅ รับคำสั่งปริ้นแล้ว</h2>
+
+    <p>
+        กรุณานำใบเสร็จหรือหน้าจอนี้
+        มาแสดงที่จุดปริ้น
+    </p>
+
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="script.js"></script>
 
 <script src="script.js"></script>
 
