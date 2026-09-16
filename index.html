@@ -21,14 +21,16 @@
     </p>
 
 
-    <!-- อัปโหลดไฟล์ -->
+    <!-- =========================
+         อัปโหลดไฟล์
+    ========================== -->
 
     <div class="upload-box">
 
         <input
             type="file"
             id="fileInput"
-            accept=".pdf"
+            accept=".pdf,application/pdf"
         >
 
         <label for="fileInput">
@@ -44,9 +46,14 @@
     </div>
 
 
-    <!-- ตั้งค่าการปริ้น -->
+    <!-- =========================
+         ตั้งค่าการปริ้น
+    ========================== -->
 
-    <div id="printSetting">
+    <div
+        id="printSetting"
+        style="display:none;"
+    >
 
         <h2>⚙️ ตั้งค่าการปริ้น</h2>
 
@@ -55,7 +62,7 @@
 
         <div class="setting">
 
-            <label>
+            <label for="paperSize">
                 📄 ขนาดกระดาษ
             </label>
 
@@ -82,7 +89,7 @@
             style="display:none;"
         >
 
-            <label>
+            <label for="a5Type">
                 📦 ประเภท A5
             </label>
 
@@ -109,7 +116,7 @@
 
         <div class="setting">
 
-            <label>
+            <label for="color">
                 🎨 สีของงาน
             </label>
 
@@ -132,7 +139,7 @@
 
         <div class="setting">
 
-            <label>
+            <label for="copies">
                 🔢 จำนวนชุด
             </label>
 
@@ -146,11 +153,15 @@
         </div>
 
 
-        <!-- ราคา -->
+        <!-- =========================
+             ราคาทั้งหมด
+        ========================== -->
 
         <div class="price-box">
 
-            <p>ราคาทั้งหมด</p>
+            <p>
+                ราคาทั้งหมด
+            </p>
 
             <h2 id="price">
                 0 บาท
@@ -159,9 +170,12 @@
         </div>
 
 
-        <!-- ปุ่มยืนยัน -->
+        <!-- =========================
+             ปุ่มปริ้น
+        ========================== -->
 
         <button
+            type="button"
             id="printButton"
             class="print-button"
         >
@@ -175,69 +189,92 @@
 
     </div>
 
-</div>
-<!-- หน้าชำระเงิน -->
 
-<div
-    id="paymentBox"
-    style="display:none;"
->
+    <!-- =========================
+         หน้าชำระเงิน
+    ========================== -->
 
-    <h2>💳 ชำระเงิน</h2>
-
-    <p>
-        กรุณาสแกน QR Code
-        เพื่อชำระค่าปริ้น
-    </p>
-
-
-    <!-- สรุปงาน -->
-
-    <div id="summary"></div>
-
-
-    <!-- QR -->
-
-    <div id="qrcode"></div>
-
-
-    <p class="payment-note">
-        หลังจากชำระเงินแล้ว
-        กดปุ่มด้านล่าง
-    </p>
-
-
-    <button
-        id="paidButton"
-        class="print-button"
+    <div
+        id="paymentBox"
+        style="display:none;"
     >
 
-        ✅ ชำระเงินแล้ว
+        <h2>
+            💳 ชำระเงิน
+        </h2>
 
-    </button>
+        <p>
+            กรุณาสแกน QR Code
+            เพื่อชำระค่าปริ้น
+        </p>
+
+
+        <!-- สรุปงาน -->
+
+        <div id="summary"></div>
+
+
+        <!-- QR Code -->
+
+        <div id="qrcode"></div>
+
+
+        <p class="payment-note">
+
+            หลังจากชำระเงินแล้ว
+            กดปุ่มด้านล่าง
+
+        </p>
+
+
+        <button
+            type="button"
+            id="paidButton"
+            class="print-button"
+        >
+
+            ✅ ชำระเงินแล้ว
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         หน้าสำเร็จ
+    ========================== -->
+
+    <div
+        id="successBox"
+        style="display:none;"
+    >
+
+        <h2>
+            ✅ รับคำสั่งปริ้นแล้ว
+        </h2>
+
+        <p>
+            กรุณานำใบเสร็จหรือหน้าจอนี้
+            มาแสดงที่จุดปริ้น
+        </p>
+
+    </div>
 
 </div>
 
 
-<!-- สำเร็จ -->
-
-<div
-    id="successBox"
-    style="display:none;"
->
-
-    <h2>✅ รับคำสั่งปริ้นแล้ว</h2>
-
-    <p>
-        กรุณานำใบเสร็จหรือหน้าจอนี้
-        มาแสดงที่จุดปริ้น
-    </p>
-
-</div>
+<!-- =========================
+     Library
+========================== -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="script.js"></script>
+
+
+<!-- =========================
+     JavaScript ของเรา
+========================== -->
 
 <script src="script.js"></script>
 
